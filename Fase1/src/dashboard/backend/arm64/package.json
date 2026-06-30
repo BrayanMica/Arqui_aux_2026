@@ -1,0 +1,14 @@
+{
+  "name": "arm64-orchestrator",
+  "version": "1.0.0",
+  "description": "Orquestador ARM64 en Node.js — ejecuta módulos assembly para procesar lecturas de sensores",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mongodb": "^6.12.0"
+  }
+}
