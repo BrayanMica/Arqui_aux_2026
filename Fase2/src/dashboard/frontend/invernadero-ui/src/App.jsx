@@ -736,9 +736,9 @@ function App() {
           description="Eventos recientes unificados desde los endpoints actuales del backend."
         >
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overflow-y-auto max-h-[480px]">
               <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
+                <thead className="bg-slate-50 sticky top-0 z-10">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha / Hora</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
