@@ -453,52 +453,6 @@ atoi_loop:
 atoi_done:
     ret
 
-atoi_signed:
-    mov x21, x0
-    mov x10, #0
-    mov x7, #0              // flag se leyó algún dígito
-    mov x6, #0              // 0 = positivo
-
-    ldrb w23, [x21], #1
-    cmp w23, #'-'
-    bne atoi_s_check_digit
-    mov x6, #1              // es negativo
-    ldrb w23, [x21], #1     // leer siguiente carácter
-
-atoi_s_loop:
-    cmp w23, #0
-    beq atoi_s_done
-    cmp w23, ','
-    beq atoi_s_done
-    cmp w23, #10
-    beq atoi_s_done
-
-atoi_s_check_digit:
-    cmp w23, '0'
-    blt atoi_s_next
-    cmp w23, '9'
-    bgt atoi_s_next
-
-    sub w23, w23, '0'
-    mov x4, x10
-    mov x5, #10
-    mul x10, x4, x5
-    add x10, x10, x23
-    mov x7, #1
-
-atoi_s_next:
-    ldrb w23, [x21], #1
-    b atoi_s_loop
-
-atoi_s_done:
-    cmp x6, #1
-    bne atoi_s_ret
-    neg x10, x10
-
-atoi_s_ret:
-    mov x0, x10
-    ret    
-
 read_column_to_stack:
     stp x29, x30, [sp, #-32]!
     stp x25, x26, [sp, #16]
@@ -793,33 +747,8 @@ close_file:
     mov x8, #57
     svc #0
     ret
-
-// escribe cadena terminada en '\0'
-write_str_null:
-    stp x29, x30, [sp, #-32]!
-    stp x19, x20, [sp, #16]
-    mov x29, sp
-    mov x19, x0
-    mov x20, x1
-
-    mov x2, #0
-wsn_len:
-    ldrb w3, [x20, x2]
-    cbz w3, wsn_write
-    add x2, x2, #1
-    b wsn_len
-
-wsn_write:
-    cbz x2, wsn_done
-    mov x0, x19
-    mov x1, x20
-    bl write_file
-
-wsn_done:
-    ldp x19, x20, [sp, #16]
-    ldp x29, x30, [sp], #32
-    ret    
     
+
 open_error:
     mov x0, #1
     ldr x1, =err_open

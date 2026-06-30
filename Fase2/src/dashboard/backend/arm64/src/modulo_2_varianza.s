@@ -4,7 +4,6 @@
 
 .data
 
-
 outfile:
     .asciz "resultado_varianza.txt"
 
@@ -13,7 +12,7 @@ str_mod:
     len_mod = . - str_mod
 
 str_tot:
-    .ascii "TOTAL_VALUES=\n"
+    .ascii "TOTAL_VALUES=30\n"
     len_tot = . - str_tot
 
 str_mean:
@@ -34,34 +33,18 @@ nl:
 .text
 
 _start:
-    ldr x0, [sp]              
-    cmp x0, #5
+
+    ldr x10, [sp]
+    cmp x10, #2
     blt fail_arg
 
-    ldr x0, [sp, #16]          // archivo_entrada cadena
-    ldr x1, [sp, #24]          // linea_inicial cadena
-    ldr x2, [sp, #32]          // linea_final cadena
-    ldr x3, [sp, #40]          // columna_sensor cadena            
-
-
-    // Convertir linea_inicial
-    mov x21, x1                
-    mov x5, #10                
-    bl atoi_csv
-    mov x13, x10               // linea_inicial entero
-
-    // Convertir linea_final
-    mov x21, x2                
+    ldr x21, [sp, #16]
     mov x5, #10
     bl atoi_csv
-    mov x14, x10               // linea_final entero
+    cbz x7, fail_arg
+    mov x11, x10
 
-    bl historical_analyzer_validate
-    mov x11, x0               // la funcion regresa la columna convertida a entero
-
-    // Llamar a la función modificada
     bl read_column_to_stack
-
     mov x24, x0
     mov x25, x1
     mov x26, x2
@@ -132,7 +115,6 @@ var_done:
     ldr x1, =str_tot
     mov x2, len_tot
     bl write_file
-    
 
     mov x0, x19
     ldr x1, =str_mean

@@ -21,7 +21,7 @@ SRC_DIR  = src
 BUILD    = build
 GDB_PORT = 1234
 
-MODULES = modulo_1_media modulo_1_rmse modulo_2_varianza modulo_3_anomalias \
+MODULES = modulo_1_media modulo_2_varianza modulo_3_anomalias \
           modulo_4_prediccion modulo_5_tendencia
 
 .PHONY: all clean run gdb info

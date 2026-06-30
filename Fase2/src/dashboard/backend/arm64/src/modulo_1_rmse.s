@@ -1,8 +1,5 @@
 .section .data
 
-outfile:
-    .asciz "resultado_rmse.txt"
-
 msg_calc:
     .ascii "CALC=RMSE\n"
 len_calc = . - msg_calc
@@ -198,7 +195,6 @@ calcular_mse:
     str x28, [x12]
 
     bl imprimir_ok
-    bl escribir_archivo_ok
 
     mov x0, #0
     mov x8, #93
@@ -299,140 +295,6 @@ imprimir_ok:
     ldr x1, =msg_status_ok
     mov x2, len_status_ok
     bl write_text
-
-    ldp x29, x30, [sp], #16
-    ret
-
-
-escribir_archivo_ok:
-    stp x29, x30, [sp, #-16]!
-
-    ldr x0, =outfile
-    mov x1, #577
-    mov x2, #438
-    bl open_file
-    mov x19, x0
-
-    mov x0, x19
-    ldr x1, =msg_calc
-    mov x2, len_calc
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =msg_column
-    mov x2, len_column
-    bl write_file
-
-    ldr x12, =save_column
-    ldr x0, [x12]
-    ldr x1, =num_buffer
-    bl itoa
-    mov x0, x19
-    ldr x1, =num_buffer
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =newline
-    mov x2, len_newline
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =msg_start
-    mov x2, len_start
-    bl write_file
-
-    ldr x12, =save_window_start
-    ldr x0, [x12]
-    ldr x1, =num_buffer
-    bl itoa
-    mov x0, x19
-    ldr x1, =num_buffer
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =newline
-    mov x2, len_newline
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =msg_end
-    mov x2, len_end
-    bl write_file
-
-    ldr x12, =save_window_end
-    ldr x0, [x12]
-    ldr x1, =num_buffer
-    bl itoa
-    mov x0, x19
-    ldr x1, =num_buffer
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =newline
-    mov x2, len_newline
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =msg_count
-    mov x2, len_count
-    bl write_file
-
-    ldr x12, =save_count
-    ldr x0, [x12]
-    ldr x1, =num_buffer
-    bl itoa
-    mov x0, x19
-    ldr x1, =num_buffer
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =newline
-    mov x2, len_newline
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =msg_ideal
-    mov x2, len_ideal
-    bl write_file
-
-    ldr x12, =save_ideal
-    ldr x0, [x12]
-    ldr x1, =num_buffer
-    bl itoa
-    mov x0, x19
-    ldr x1, =num_buffer
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =newline
-    mov x2, len_newline
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =msg_rmse
-    mov x2, len_rmse
-    bl write_file
-
-    ldr x12, =save_rmse
-    ldr x0, [x12]
-    ldr x1, =num_buffer
-    bl itoa
-    mov x0, x19
-    ldr x1, =num_buffer
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =newline
-    mov x2, len_newline
-    bl write_file
-
-    mov x0, x19
-    ldr x1, =msg_status_ok
-    mov x2, len_status_ok
-    bl write_file
-
-    mov x0, x19
-    bl close_file
 
     ldp x29, x30, [sp], #16
     ret
