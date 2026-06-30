@@ -569,22 +569,35 @@ export function HistoricalArmResultsPanel({ result, loading, error }) {
         <ResultField label="Estado" value="OK" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <ResultField label="Media ponderada" value={mean?.WEIGHTED_MEAN} />
-        <ResultField label="Anomalias detectadas" value={anomaly?.ANOMALIES} />
-        <ResultField label="Riesgo del sistema" value={anomaly?.SYSTEM_RISK} />
-        <ResultField label="Prediccion simple (proximo valor)" value={prediction?.NEXT_VALUE} />
-        <ResultField label="Tendencia general" value={trend?.TREND} />
+      <div>
+        <h4 className="text-xs font-bold uppercase tracking-wide text-indigo-600 mb-2">
+          Fase 1 - Modulos actualizados (sec. 4.17)
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <ResultField label="Media ponderada (modulo_1_media)" value={mean?.WEIGHTED_MEAN} />
+          <ResultField label="Varianza (modulo_2_varianza)" value={variance?.VARIANCE} />
+          <ResultField label="Anomalias detectadas (modulo_3_anomalias)" value={anomaly?.ANOMALIES} />
+          <ResultField label="Prediccion simple (modulo_4_prediccion)" value={prediction?.NEXT_VALUE} />
+          <ResultField label="Tendencia general (modulo_5_tendencia)" value={trend?.TREND} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <ResultField label="RMSE" value={rmse?.RMSE} />
-        <ResultField label="Regresion lineal (pendiente x100)" value={regresion?.SLOPE_X100} />
-        <ResultField label="Prediccion futura" value={predFutura?.PREDICTED_5} />
-        <ResultField label="Integral del error" value={integral?.ERROR_INTEGRAL} />
-        <ResultField label="Derivada local (pendiente x100)" value={derivada?.MAX_LOCAL_SLOPE_X100} />
-        <ResultField label="Varianza" value={variance?.VARIANCE} />
+      <div>
+        <h4 className="text-xs font-bold uppercase tracking-wide text-emerald-600 mb-2">
+          Fase 2 - Nuevos calculos ARM64 (sec. 4.19)
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <ResultField label="RMSE (modulo_1_rmse, Rutina 1)" value={rmse?.RMSE} />
+          <ResultField label="Regresion lineal (modulo_2_regresion, Rutina 2)" value={regresion?.SLOPE_X100} />
+          <ResultField label="Prediccion futura (modulo_3_prediccion, Rutina 3)" value={predFutura?.PREDICTED_5} />
+          <ResultField label="Integral del error (modulo_4_integral_error, Rutina 4)" value={integral?.ERROR_INTEGRAL} />
+          <ResultField label="Derivada local (modulo_5_derivada_local, Rutina 5)" value={derivada?.MAX_LOCAL_SLOPE_X100} />
+        </div>
       </div>
+
+      {(anomaly?.SYSTEM_RISK || prediction?.NEXT_VALUE != null) && (
+        <ResultField label="Riesgo del sistema" value={anomaly?.SYSTEM_RISK} />
+      )}
 
       {(anomaly?.SYSTEM_RISK || prediction?.NEXT_VALUE != null) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
