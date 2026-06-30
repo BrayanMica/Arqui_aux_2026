@@ -81,7 +81,7 @@ OUTPUT_FILES = [
 MAPA_CAMPOS = {
     "TEMPERATURA":       "TEMP",
     "HUMEDAD_AMBIENTAL": "HUM_AIRE",
-    "HUMEDAD_SUELO_1":   "HUM_SUELO_1",
+    "HUMEDAD_SUELO":     "HUM_SUELO_1",
     "HUMEDAD_SUELO_2":   "HUM_SUELO_2",
     "LUZ":               "LUZ",
     "GAS":               "GAS",

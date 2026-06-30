@@ -260,7 +260,7 @@ export function ArmHistoryPanel({ history, loading, error, onRefresh }) {
 const COLUMNAS_PERMITIDAS = [
   { value: 'TEMP', label: 'Temperatura' },
   { value: 'HUM_AIRE', label: 'Humedad Ambiental' },
-  { value: 'SOIL1', label: 'Humedad Suelo 1' },
+  { value: 'HUM_SUELO_1', label: 'Humedad Suelo 1' },
   { value: 'LUZ', label: 'Luz' },
   { value: 'GAS', label: 'Gas' }
 ];
