@@ -51,12 +51,14 @@ let estadoInvernadero = {
   temperature: null,
   humidity: null,
   soilMoistureArea: null,
+  soilMoistureArea2: null,
   lightLevel: null,
   gasLevel: null,
 
   // Actuadores
   actuators: {
     riego_1: false,
+    riego_2: false,
     ventilador: false,
     luces: false,
     alarma: false
@@ -76,10 +78,6 @@ export const conectarMqttInvernadero = (
   // Evita duplicar conexiones si ya existe una activa
   if (!mqttClientGlobal) {
     mqttClientGlobal = mqtt.connect(MQTT_BROKER_URL);
-  } else {
-    // Si el cliente ya existia (p. ej. remount en React StrictMode),
-    // limpiamos los listeners previos para no duplicarlos
-    mqttClientGlobal.removeAllListeners();
   }
 
   mqttClientGlobal.on('connect', () => {
@@ -152,13 +150,9 @@ export const conectarMqttInvernadero = (
 
     } else if (topic === mqttTopic('control', 'remoto')) {
 
-      // El IoT reutiliza este mismo topico para comandos de actuadores
-      // (RIEGO_ON, ALARMA_OFF, etc). Solo MANUAL/AUTOMATICO representan
-      // un cambio real de modo; lo demas es eco de un comando y debe
-      // ignorarse para no corromper el modo mostrado en la UI.
-      const normalizedPayload = payload.toUpperCase().trim();
-      if (normalizedPayload === 'MANUAL' || normalizedPayload === 'AUTOMATICO') {
-        estadoInvernadero.controlMode = normalizedPayload;
+      const upper = payload.toUpperCase().trim();
+      if (upper === 'AUTOMATICO' || upper === 'MANUAL') {
+        estadoInvernadero.controlMode = upper;
       }
 
     } else {
@@ -180,6 +174,10 @@ export const conectarMqttInvernadero = (
           estadoInvernadero.soilMoistureArea = valor;
           break;
 
+        case mqttTopic('sensores', 'humedad_suelo_area2'):
+          estadoInvernadero.soilMoistureArea2 = valor;
+          break;
+
         case mqttTopic('sensores', 'luz'):
           estadoInvernadero.lightLevel = valor;
           break;
@@ -192,6 +190,11 @@ export const conectarMqttInvernadero = (
         case mqttTopic('actuadores', 'riego'):
         case mqttTopic('actuadores', 'riego_area1'):
           estadoInvernadero.actuators.riego_1 =
+            payload.toUpperCase() === 'ON';
+          break;
+
+        case mqttTopic('actuadores', 'riego_area2'):
+          estadoInvernadero.actuators.riego_2 =
             payload.toUpperCase() === 'ON';
           break;
 
@@ -241,20 +244,6 @@ export const conectarMqttInvernadero = (
   });
 
   return mqttClientGlobal; // Retornar el mqttClientGlobale para poder apagarlo desde el useEffect
-};
-
-/*
- * Cierra la conexion activa y limpia el singleton para que la proxima
- * llamada a conectarMqttInvernadero() abra una conexion nueva en vez de
- * reutilizar un cliente ya finalizado (evita que un remount de React
- * StrictMode deje el MQTT desconectado para siempre).
- */
-export const desconectarMqttInvernadero = () => {
-  if (mqttClientGlobal) {
-    mqttClientGlobal.removeAllListeners();
-    mqttClientGlobal.end(true);
-    mqttClientGlobal = null;
-  }
 };
 
 
@@ -462,6 +451,12 @@ export const publicarComandoMqtt =
           : "RIEGO_OFF";
         break;
 
+      case "riego_area2":
+        payload = estado
+          ? "RIEGO2_ON"
+          : "RIEGO2_OFF";
+        break;
+
       case "ventilador":
         payload = estado
           ? "VENTILADOR_ON"
@@ -497,6 +492,7 @@ export const publicarComandoMqtt =
 export const updateActuatorState = (actuatorId, newState) => {
   const apiActuatorNames = {
     riego_1: 'riego_area1',
+    riego_2: 'riego_area2',
     ventilador: 'ventilador',
     luces: 'luces',
     alarma: 'alarma'

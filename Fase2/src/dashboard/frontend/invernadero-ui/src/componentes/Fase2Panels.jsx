@@ -261,6 +261,7 @@ const COLUMNAS_PERMITIDAS = [
   { value: 'TEMP', label: 'Temperatura' },
   { value: 'HUM_AIRE', label: 'Humedad Ambiental' },
   { value: 'SOIL1', label: 'Humedad Suelo 1' },
+  { value: 'SOIL2', label: 'Humedad Suelo 2' },
   { value: 'LUZ', label: 'Luz' },
   { value: 'GAS', label: 'Gas' }
 ];

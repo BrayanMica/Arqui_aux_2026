@@ -22,7 +22,6 @@ import {
 // Importación del servicio de endpoints
 import {
   conectarMqttInvernadero,
-  desconectarMqttInvernadero,
   fetchHistoricalData,
   fetchLogsData,
   updateActuatorState,
@@ -37,6 +36,7 @@ import { LoginScreen, TEST_USER } from './componentes/LoginScreen';
 const SESSION_KEY = 'invernadero_dashboard_session';
 const COMMAND_LABELS = {
   riego_1: 'Riego area 1',
+  riego_2: 'Riego area 2',
   ventilador: 'Ventilador',
   luces: 'Luces',
   alarma: 'Alarma'
@@ -97,7 +97,6 @@ function App() {
   const [armHistory, setArmHistory] = useState([]);
 
   const [controlMode, setControlMode] = useState("AUTOMATICO");
-  const [alarmaSilenciada, setAlarmaSilenciada] = useState(false);
   const [mqttConnected, setMqttConnected] = useState(false);
   const [lastCommand, setLastCommand] = useState(null);
   const [commandError, setCommandError] = useState('');
@@ -182,7 +181,6 @@ function App() {
     setLastCommand(null);
     setCommandError('');
     setLastUpdate(null);
-    setAlarmaSilenciada(false);
   };
 
   useEffect(() => {
@@ -205,11 +203,13 @@ function App() {
             temperature: null,
             humidity: null,
             soilMoistureArea: null,
+            soilMoistureArea2: null,
             lightLevel: null,
             gasLevel: null,
           },
           actuators: {
             riego_1: { active: false },
+            riego_2: { active: false },
             ventilador: { active: false },
             luces: { active: false },
             alarma: { active: false }
@@ -226,9 +226,9 @@ function App() {
         mqttClient = conectarMqttInvernadero(
           (nuevoEstado) => {
 
-            setControlMode(
-              nuevoEstado.controlMode
-            );
+            if (nuevoEstado.controlMode === 'AUTOMATICO' || nuevoEstado.controlMode === 'MANUAL') {
+              setControlMode(nuevoEstado.controlMode);
+            }
             setLastUpdate(new Date());
 
 
@@ -246,6 +246,8 @@ function App() {
                   humidity: nuevoEstado.humidity,
                   soilMoistureArea:
                     nuevoEstado.soilMoistureArea,
+                  soilMoistureArea2:
+                    nuevoEstado.soilMoistureArea2,
                   lightLevel:
                     nuevoEstado.lightLevel,
                   gasLevel:
@@ -256,6 +258,11 @@ function App() {
                   riego_1: {
                     active:
                       nuevoEstado.actuators.riego_1
+                  },
+
+                  riego_2: {
+                    active:
+                      nuevoEstado.actuators.riego_2 || false
                   },
 
                   ventilador: {
@@ -291,7 +298,7 @@ function App() {
     // Cuando el usuario cierre o recargue la pestaña, cerramos la sesión de MQTT limpia
     return () => {
       if (mqttClient) {
-        desconectarMqttInvernadero();
+        mqttClient.end();
       }
     };
   }, [session]);
@@ -376,27 +383,6 @@ function App() {
     setLastCommand({
       label: COMMAND_LABELS[actuatorKey] || actuatorKey,
       action: targetNewState ? 'ON' : 'OFF',
-      timestamp: new Date().toLocaleTimeString()
-    });
-  };
-
-  // El IoT interpreta ALARMA_ON/ALARMA_OFF como un mute (campo "silenciado"),
-  // no como el estado del buzzer fisico. Por eso usa su propio estado local
-  // en vez de reusar toggleActuator/data.actuators.alarma.active.
-  const handleAlarma = () => {
-    const silenciar = !alarmaSilenciada;
-    const published = updateActuatorState('alarma', silenciar);
-
-    if (!published) {
-      setCommandError('No hay conexion MQTT para enviar el comando.');
-      return;
-    }
-
-    setAlarmaSilenciada(silenciar);
-    setCommandError('');
-    setLastCommand({
-      label: COMMAND_LABELS.alarma,
-      action: silenciar ? 'SILENCIADA' : 'REACTIVADA',
       timestamp: new Date().toLocaleTimeString()
     });
   };
@@ -610,7 +596,7 @@ function App() {
               label="Sistema de Riego 1"
               state={data.actuators.riego_1.active}
               onChange={() => toggleActuator('riego_1')}
-              subtitle={controlMode === 'AUTOMATICO' ? 'Modo Automático' : 'Modo Manual'}
+              subtitle={data.actuators.riego_1.mode === 'auto' ? 'Modo Automático' : 'Modo Manual'}
               disabled={controlMode === "AUTOMATICO"}
             />
 
@@ -619,22 +605,22 @@ function App() {
 
             <div className="pt-4 border-t border-slate-100">
               <button
-                onClick={handleAlarma}
+                onClick={() => toggleActuator('alarma')}
                 disabled={controlMode === "AUTOMATICO"}
                 className={`w-full py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors ${controlMode === "AUTOMATICO"
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  : alarmaSilenciada
-                    ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    : "bg-rose-100 text-rose-700 hover:bg-rose-200"
+                  : data.actuators.alarma.active
+                    ? "bg-rose-100 text-rose-700 hover:bg-rose-200"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
               >
                 <Bell className="w-5 h-5" />
 
                 {controlMode === "AUTOMATICO"
                   ? "Bloqueado (Modo Automático)"
-                  : alarmaSilenciada
-                    ? "Alarma silenciada (reactivar)"
-                    : "SILENCIAR ALARMA"}
+                  : data.actuators.alarma.active
+                    ? "SILENCIAR ALARMA"
+                    : "Alarma Inactiva"}
               </button>
             </div>
 
@@ -666,9 +652,6 @@ function App() {
           <div className="flex flex-wrap items-center gap-2 mb-2">
             <span className="text-sm font-semibold text-slate-500">Rango:</span>
             {[
-              { value: '1h', label: '1 hora' },
-              { value: '6h', label: '6 horas' },
-              { value: '12h', label: '12 horas' },
               { value: '24h', label: '24 horas' },
               { value: '7d', label: '7 dias' },
               { value: '30d', label: '30 dias' }
