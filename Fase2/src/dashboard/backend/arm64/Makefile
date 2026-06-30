@@ -22,7 +22,9 @@ BUILD    = build
 GDB_PORT = 1234
 
 MODULES = modulo_1_media modulo_2_varianza modulo_3_anomalias \
-          modulo_4_prediccion modulo_5_tendencia
+          modulo_4_prediccion modulo_5_tendencia \
+          modulo_1_rmse modulo_2_regresion modulo_3_prediccion \
+          modulo_4_integral_error modulo_5_derivada_local
 
 .PHONY: all clean run gdb info
 

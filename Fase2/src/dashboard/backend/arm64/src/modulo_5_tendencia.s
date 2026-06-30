@@ -59,7 +59,7 @@ nl:
 _start:
 
     ldr x10, [sp]
-    cmp x10, #2
+    cmp x10, #4
     blt fail_arg
 
     ldr x21, [sp, #16]
@@ -67,6 +67,18 @@ _start:
     bl atoi_csv
     cbz x7, fail_arg
     mov x11, x10
+
+    ldr x21, [sp, #24]
+    mov x5, #10
+    bl atoi_csv
+    cbz x7, fail_arg
+    mov x13, x10
+
+    ldr x21, [sp, #32]
+    mov x5, #10
+    bl atoi_csv
+    cbz x7, fail_arg
+    mov x14, x10
 
     bl read_column_to_stack
     mov x24, x0

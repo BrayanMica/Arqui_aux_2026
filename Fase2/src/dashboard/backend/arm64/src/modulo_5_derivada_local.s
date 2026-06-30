@@ -1,4 +1,11 @@
-.data 
+.include "utils.s"
+
+.data
+    outfile:        .asciz "resultado_derivada.txt"
+
+    msg_mod:        .asciz "MODULE=LOCAL_DERIVATIVE\n"
+    len_msg_mod     = . - msg_mod
+
     msg_calc:       .asciz "CALC=LOCAL_DERIVATIVE\n"
     len_msg_calc    = . - msg_calc
 
@@ -22,6 +29,10 @@ _start:
     cmp x0, #4
     blt error_insuficiente
 
+    ldr x0, [sp, #16]
+    bl cadena_a_entero
+    mov x11, x0
+
     ldr x0, [sp, #24]
     bl cadena_a_entero
     mov x13, x0
@@ -29,8 +40,6 @@ _start:
     ldr x0, [sp, #32]
     bl cadena_a_entero
     mov x14, x0
-
-    mov x11, #2
 
     bl read_column_to_stack
     mov x24, x0
@@ -123,13 +132,25 @@ next_window:
     b window_loop
 
 print_max:
-    mov x0, #1
+    ldr x0, =outfile
+    mov x1, #577              // O_WRONLY|O_CREAT|O_TRUNC
+    mov x2, #438               // 0666
+    bl open_file
+    mov x21, x0                // x21 = fd del archivo de salida
+
+    mov x0, x21
+    ldr x1, =msg_mod
+    mov x2, len_msg_mod
+    mov x8, #64
+    svc #0
+
+    mov x0, x21
     ldr x1, =msg_calc
     mov x2, len_msg_calc
     mov x8, #64
     svc #0
 
-    mov x0, #1
+    mov x0, x21
     ldr x1, =msg_max
     mov x2, len_msg_max
     mov x8, #64
@@ -138,17 +159,20 @@ print_max:
     mov x0, x22
     bl print_int
 
-    mov x0, #1
+    mov x0, x21
     ldr x1, =newline
     mov x2, #1
     mov x8, #64
     svc #0
 
-    mov x0, #1
+    mov x0, x21
     ldr x1, =msg_status
     mov x2, len_msg_status
     mov x8, #64
     svc #0
+
+    mov x0, x21
+    bl close_file
 
     b exit_ok
 
@@ -201,7 +225,7 @@ convert_loop:
     add x4, x4, #1
 
 write_number:
-    mov x0, #1
+    mov x0, x21
     mov x2, x4
     mov x8, #64
     svc #0

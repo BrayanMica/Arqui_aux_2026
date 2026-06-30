@@ -1,5 +1,12 @@
 .section .data
 
+outfile:
+    .asciz "resultado_rmse.txt"
+
+msg_mod:
+    .ascii "MODULE=RMSE\n"
+len_mod = . - msg_mod
+
 msg_calc:
     .ascii "CALC=RMSE\n"
 len_calc = . - msg_calc
@@ -89,24 +96,22 @@ save_expected_count:
 _start:
     ldr x9, [sp]
 
-    cmp x9, #5
+    cmp x9, #4
     blt imprimir_error_missing
 
     ldr x0, [sp, #16]
     bl cadena_a_entero
-    mov x19, x0
+    mov x15, x0
 
     ldr x0, [sp, #24]
     bl cadena_a_entero
-    mov x21, x0
+    mov x19, x0
 
     ldr x0, [sp, #32]
     bl cadena_a_entero
-    mov x15, x0
+    mov x21, x0
 
-    ldr x0, [sp, #40]
-    bl cadena_a_entero
-    mov x20, x0
+    mov x20, #55             // IDEAL por defecto (main.js no envia este parametro)
 
     cmp x15, #2
     blt imprimir_error_column
@@ -204,97 +209,131 @@ calcular_mse:
 imprimir_ok:
     stp x29, x30, [sp, #-16]!
 
+    ldr x0, =outfile
+    mov x1, #577             // O_WRONLY|O_CREAT|O_TRUNC
+    mov x2, #438              // 0666
+    bl open_file
+    mov x9, x0                // x9 = fd del archivo de salida
+
+    mov x0, x9
+    ldr x1, =msg_mod
+    mov x2, len_mod
+    bl write_file
+
+    mov x0, x9
     ldr x1, =msg_calc
     mov x2, len_calc
-    bl write_text
+    bl write_file
 
+    mov x0, x9
     ldr x1, =msg_column
     mov x2, len_column
-    bl write_text
+    bl write_file
 
     ldr x12, =save_column
     ldr x0, [x12]
     ldr x1, =buffer_num
     bl uint_to_ascii
-    bl write_text
+    mov x0, x9
+    bl write_file
 
+    mov x0, x9
     ldr x1, =newline
     mov x2, len_newline
-    bl write_text
+    bl write_file
 
+    mov x0, x9
     ldr x1, =msg_start
     mov x2, len_start
-    bl write_text
+    bl write_file
 
     ldr x12, =save_window_start
     ldr x0, [x12]
     ldr x1, =buffer_num
     bl uint_to_ascii
-    bl write_text
+    mov x0, x9
+    bl write_file
 
+    mov x0, x9
     ldr x1, =newline
     mov x2, len_newline
-    bl write_text
+    bl write_file
 
+    mov x0, x9
     ldr x1, =msg_end
     mov x2, len_end
-    bl write_text
+    bl write_file
 
     ldr x12, =save_window_end
     ldr x0, [x12]
     ldr x1, =buffer_num
     bl uint_to_ascii
-    bl write_text
+    mov x0, x9
+    bl write_file
 
+    mov x0, x9
     ldr x1, =newline
     mov x2, len_newline
-    bl write_text
+    bl write_file
 
+    mov x0, x9
     ldr x1, =msg_count
     mov x2, len_count
-    bl write_text
+    bl write_file
 
     ldr x12, =save_count
     ldr x0, [x12]
     ldr x1, =buffer_num
     bl uint_to_ascii
-    bl write_text
+    mov x0, x9
+    bl write_file
 
+    mov x0, x9
     ldr x1, =newline
     mov x2, len_newline
-    bl write_text
+    bl write_file
 
+    mov x0, x9
     ldr x1, =msg_ideal
     mov x2, len_ideal
-    bl write_text
+    bl write_file
 
     ldr x12, =save_ideal
     ldr x0, [x12]
     ldr x1, =buffer_num
     bl uint_to_ascii
-    bl write_text
+    mov x0, x9
+    bl write_file
 
+    mov x0, x9
     ldr x1, =newline
     mov x2, len_newline
-    bl write_text
+    bl write_file
 
+    mov x0, x9
     ldr x1, =msg_rmse
     mov x2, len_rmse
-    bl write_text
+    bl write_file
 
     ldr x12, =save_rmse
     ldr x0, [x12]
     ldr x1, =buffer_num
     bl uint_to_ascii
-    bl write_text
+    mov x0, x9
+    bl write_file
 
+    mov x0, x9
     ldr x1, =newline
     mov x2, len_newline
-    bl write_text
+    bl write_file
 
+    mov x0, x9
     ldr x1, =msg_status_ok
     mov x2, len_status_ok
-    bl write_text
+    bl write_file
+
+    mov x0, x9
+    bl close_file
 
     ldp x29, x30, [sp], #16
     ret

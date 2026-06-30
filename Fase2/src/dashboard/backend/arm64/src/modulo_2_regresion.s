@@ -28,6 +28,9 @@ test_data:
 outfile:
 	.asciz "resultado_regresion.txt"
 //estructura del archivo-
+str_mod:
+	.ascii "MODULE=LINEAR_REGRESSION\n"
+	len_mod = . - str_mod
 str_calc:
 	.ascii "CALC=LINEAR_REGRESSION\n"
 	len_calc = . - str_calc
@@ -133,38 +136,40 @@ fail_parse_error:
 // Funcionalidad principal (calculos)
 _start:
 
-	// Leer argumentos: ./regresion lecturas.csv 10 80 TEMP
+	// Leer argumentos: ./regresion columna linea_inicial linea_final
 	ldr x0, [sp]               // argc
-	cmp x0, #5                 // programa + 4 argumentos
+	cmp x0, #4                 // programa + 3 argumentos
 	blt fail_insufficient_data
 
-	ldr x0, [sp, #16]         // argv[1] = archivo
-	ldr x1, [sp, #24]         // argv[2] = linea_inicial
-	ldr x2, [sp, #32]         // argv[3] = linea_final
-	ldr x3, [sp, #40]         // argv[4] = columna
+	// columna (indice numerico)
+	ldr x21, [sp, #16]        // argv[1] = columna
+	mov x5, #10
+	bl atoi_csv
+	cbz x7, fail_insufficient_data
+	mov x11, x10               // x11 = indice de columna
 
-	// Guardar puntero de columna para la salida
+	// Guardar puntero de columna (string original) para la salida
 	ldr x4, =saved_col_ptr
-	str x3, [x4]
+	ldr x12, [sp, #16]
+	str x12, [x4]
 
-	// Validar archivo, lineas, columna (historical_analyzer_validate de utils.s)
-	bl historical_analyzer_validate
-	mov x11, x0               // x11 = indice de columna
-	add x11, x11, #1          // ajustar: CSV tiene columna ID antes de los sensores
-
-	// Convertir linea_inicial a entero (cadena_a_entero de utils.s)
-	ldr x0, [sp, #24]         // re-leer argv[2], sp no cambio
-	bl cadena_a_entero
-	mov x13, x0               // x13 = linea_inicial (entero) para read_column_to_stack
+	// linea_inicial
+	ldr x21, [sp, #24]        // argv[2] = linea_inicial
+	mov x5, #10
+	bl atoi_csv
+	cbz x7, fail_insufficient_data
+	mov x13, x10               // x13 = linea_inicial (entero) para read_column_to_stack
 	ldr x4, =saved_ws
-	str x0, [x4]              // guardar para salida
+	str x10, [x4]              // guardar para salida
 
-	// Convertir linea_final a entero
-	ldr x0, [sp, #32]         // re-leer argv[3]
-	bl cadena_a_entero
-	mov x14, x0               // x14 = linea_final (entero) para read_column_to_stack
+	// linea_final
+	ldr x21, [sp, #32]        // argv[3] = linea_final
+	mov x5, #10
+	bl atoi_csv
+	cbz x7, fail_insufficient_data
+	mov x14, x10               // x14 = linea_final (entero) para read_column_to_stack
 	ldr x4, =saved_we
-	str x0, [x4]              // guardar para salida
+	str x10, [x4]              // guardar para salida
 
 	// Leer columna del CSV al stack (read_column_to_stack de utils.s)
 	// entrada: x11=columna, x13=linea_ini, x14=linea_fin
@@ -272,6 +277,12 @@ print_result:
 	mov x8, #56               // syscall openat
 	svc #0
 	mov x27, x0               // x27 = fd del archivo para toda la salida
+
+	// "MODULE=LINEAR_REGRESSION\n"
+	mov x0, x27
+	ldr x1, =str_mod
+	mov x2, len_mod
+	bl write_file
 
 	// "CALC=LINEAR_REGRESSION\n"
 	mov x0, x27
@@ -410,3 +421,4 @@ col_len_done:
 	mov x0, #0
 	mov x8, #93
 	svc #0
+	

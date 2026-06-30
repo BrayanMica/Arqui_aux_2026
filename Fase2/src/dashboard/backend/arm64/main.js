@@ -70,19 +70,19 @@ const PRIMER_BLOQUE_MODULES = [
   './build/modulo_3_anomalias',
   './build/modulo_4_prediccion',
   './build/modulo_5_tendencia',
-  './build/modulo/modulo_1_rmse',
-  './build/modulo/modulo_2_regresion'
 ];
 
 const SEGUNDO_BLOQUE_MODULES = [
-  './build/modulo/modulo_4_integral_error',
-  './build/modulo/modulo_5_derivada_local'
+  './build/modulo_1_rmse',
+  './build/modulo_2_regresion',
+  './build/modulo_4_integral_error',
+  './build/modulo_5_derivada_local'
 ];
 
 // Array unificado solo para verificar la existencia de los binarios al inicio
 const ALL_MODULES = [
   ...PRIMER_BLOQUE_MODULES,
-  './build/modulo/modulo_3_prediccion',
+  './build/modulo_3_prediccion',
   ...SEGUNDO_BLOQUE_MODULES
 ];
 
@@ -319,9 +319,9 @@ async function main(columnName, iniStr = '1', finStr = '30') {
   const slopeX100 = datosRegresion.SLOPE_X100 ?? 0;
   console.error(`[ORQUESTADOR] Pendiente detectada para módulo 3 (SLOPE_X100): ${slopeX100}`);
 
-  // 5. Ejecutar de forma dedicada './build/modulo/modulo_3_prediccion' con el parámetro extra
+  // 5. Ejecutar de forma dedicada './build/modulo_3_prediccion' con el parámetro extra
   try {
-    const mod3 = './build/modulo/modulo_3_prediccion';
+    const mod3 = './build/modulo_3_prediccion';
     await new Promise((resolve, reject) => {
       const cmd = [...QEMU_PREFIX, mod3, String(colIndex), String(lineaInicial), String(lineaFinal), String(slopeX100)];
       const prog = cmd[0];
