@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: invernadero-backend
+    runtime: node
+    rootDir: Fase2/src/dashboard/backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        sync: false
+      - key: MONGODB_COLLECTION
+        sync: false
+      - key: MONGODB_COLLECTION_SENSORES
+        sync: false
+
+  - type: static
+    name: invernadero-frontend
+    rootDir: Fase2/src/dashboard/frontend/invernadero-ui
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://gossip-settle-favorable.ngrok-free.dev/api/invernadero
+      - key: VITE_MQTT_BROKER_URL
+        value: wss://broker.emqx.io:8084/mqtt
+      - key: VITE_MQTT_TOPIC_ROOT
+        value: invernaderoG32026
+      - key: VITE_GRAFANA_URL
+        value: https://bravechowder842.grafana.net/goto/sfdhcv?orgId=stacks-1697027
