@@ -543,6 +543,11 @@ export function HistoricalArmResultsPanel({ result, loading, error }) {
   const anomaly = result.modules_data.ANOMALY_DETECTION;
   const prediction = result.modules_data.PREDICTION;
   const trend = result.modules_data.ADVANCED_TREND;
+  const rmse = result.modules_data.RMSE;
+  const regresion = result.modules_data.LINEAR_REGRESSION;
+  const predFutura = result.modules_data.PREDICTION_M3;
+  const integral = result.modules_data.ERROR_INTEGRAL;
+  const derivada = result.modules_data.LOCAL_DERIVATIVE;
 
   const totalValues = mean?.TOTAL_VALUES ?? variance?.TOTAL_VALUES ?? '-';
 
@@ -565,11 +570,11 @@ export function HistoricalArmResultsPanel({ result, loading, error }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <ResultField label="RMSE (desviacion estandar)" value={variance?.STD_DEV} />
-        <ResultField label="Regresion lineal (cambio promedio)" value={prediction?.AVG_CHANGE} />
-        <ResultField label="Prediccion futura" value={prediction?.NEXT_VALUE} />
-        <ResultField label="Integral del error (dif. acumulada)" value={trend?.ACCUM_DIFF} />
-        <ResultField label="Derivada suavizada (tendencia)" value={trend?.TREND} />
+        <ResultField label="RMSE" value={rmse?.RMSE} />
+        <ResultField label="Regresion lineal (pendiente x100)" value={regresion?.SLOPE_X100} />
+        <ResultField label="Prediccion futura" value={predFutura?.PREDICTED_5} />
+        <ResultField label="Integral del error" value={integral?.ERROR_INTEGRAL} />
+        <ResultField label="Derivada local (pendiente x100)" value={derivada?.MAX_LOCAL_SLOPE_X100} />
         <ResultField label="Varianza" value={variance?.VARIANCE} />
       </div>
 

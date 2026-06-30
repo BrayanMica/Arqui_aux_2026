@@ -3,19 +3,19 @@
 .data
     outfile:        .asciz "resultado_derivada.txt"
 
-    msg_mod:        .asciz "MODULE=LOCAL_DERIVATIVE\n"
+    msg_mod:        .ascii "MODULE=LOCAL_DERIVATIVE\n"
     len_msg_mod     = . - msg_mod
 
-    msg_calc:       .asciz "CALC=LOCAL_DERIVATIVE\n"
+    msg_calc:       .ascii "CALC=LOCAL_DERIVATIVE\n"
     len_msg_calc    = . - msg_calc
 
-    msg_max:        .asciz "MAX_LOCAL_SLOPE_X100="
+    msg_max:        .ascii "MAX_LOCAL_SLOPE_X100="
     len_msg_max     = . - msg_max
 
-    msg_status:     .asciz "STATUS=OK\n"
+    msg_status:     .ascii "STATUS=OK\n"
     len_msg_status  = . - msg_status
 
-    msg_error_data: .asciz "STATUS=ERROR;ERROR=INSUFFICIENT_DATA;DETAIL=LOCAL_DERIVATIVE_REQUIRES_AT_LEAST_5_VALUES\n"
+    msg_error_data: .ascii "STATUS=ERROR;ERROR=INSUFFICIENT_DATA;DETAIL=LOCAL_DERIVATIVE_REQUIRES_AT_LEAST_5_VALUES\n"
     len_error_data  = . - msg_error_data
 
     newline:        .asciz "\n"

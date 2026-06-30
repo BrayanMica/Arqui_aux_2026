@@ -128,7 +128,7 @@ function App() {
     setAnalysisError('');
     setAnalysisResult(null);
     try {
-      const result = await fetchArmAnalytics(params.columna);
+      const result = await fetchArmAnalytics(params.columna, params.lineaInicial, params.lineaFinal);
       if (!result) throw new Error('Sin respuesta del motor ARM64.');
       setAnalysisResult({
         ...result,

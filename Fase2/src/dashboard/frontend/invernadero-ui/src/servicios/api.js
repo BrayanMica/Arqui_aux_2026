@@ -505,11 +505,13 @@ export const updateActuatorState = (actuatorId, newState) => {
 };
 
 export const fetchArmAnalytics = async (
-  columna
+  columna,
+  lineaInicial = 1,
+  lineaFinal = 30
 ) => {
   try {
     const response = await apiFetch(
-      `${API_BASE_URL}/arm64/${columna}`
+      `${API_BASE_URL}/arm64/${columna}/${lineaInicial}/${lineaFinal}`
     );
 
     if (!response.ok) {
