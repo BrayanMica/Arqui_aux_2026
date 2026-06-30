@@ -65,10 +65,6 @@ export default function ArmAnalytics({
                         Humedad Suelo 1
                     </option>
 
-                    <option value="HUMEDAD_SUELO_2">
-                        Humedad Suelo 2
-                    </option>
-
                     <option value="LUZ">
                         Luz
                     </option>
