@@ -5,8 +5,8 @@ calcular_promedio:
     cmp x1, #0
     beq promedio_cero
 
-    mov x2, #0          // suma acumulada
-    mov x3, #0          // índice
+    mov x2, #0
+    mov x3, #0
 
 promedio_loop:
     cmp x3, x1

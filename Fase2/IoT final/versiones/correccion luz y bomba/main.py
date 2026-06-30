@@ -159,7 +159,7 @@ class GreenhouseIoT:
         if response is None or response.get("STATUS") != "OK":
             return
 
-        action = response.get("ACTION", "LED_GREEN")
+        action = response.get("ACTION", "NONE")
         modo = self.shared_data["control"]["modo"]
 
         if modo == "AUTOMATICO":
@@ -205,7 +205,7 @@ class GreenhouseIoT:
                     "hum": int(sensores["humedad_ambiente"])
                 },
                 "INDICADORES_ARM64": indicadores,
-                "DECISION_ARM64": response.get("ACTION", "LED_GREEN"),
+                "DECISION_ARM64": response.get("ACTION", "NONE"),
                 "REASON": response.get("REASON", "UNKNOWN"),
                 "ACCION_EJECUTADA": accion_ejecutada,
                 "MODO": self.shared_data["control"]["modo"],
@@ -247,13 +247,6 @@ class GreenhouseIoT:
                 elif payload == "AUTOMATICO":
                     self.shared_data["control"]["modo"] = "AUTOMATICO"
                     self.shared_data["actuadores"]["luces"] = "OFF"
-                    return
-
-                if payload == "ALARMA_ON":
-                    self.shared_data["control"]["silenciado"] = True
-                    return
-                elif payload == "ALARMA_OFF":
-                    self.shared_data["control"]["silenciado"] = False
                     return
 
                 if self.shared_data["control"]["modo"] == "MANUAL":

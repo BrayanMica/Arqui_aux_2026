@@ -12,10 +12,7 @@ promedio_loop:
     cmp x3, x1
     beq promedio_div
 
-    mov x5, #8
-    mul x6, x3, x5
-    add x6, x0, x6
-    ldr x4, [x6]
+    ldr x4, [x0, x3, lsl #3]   // array[index]
     add x2, x2, x4
     add x3, x3, #1
     b promedio_loop
