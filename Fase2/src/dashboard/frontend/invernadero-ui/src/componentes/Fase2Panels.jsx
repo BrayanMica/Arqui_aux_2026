@@ -569,6 +569,14 @@ export function HistoricalArmResultsPanel({ result, loading, error }) {
         <ResultField label="Estado" value="OK" />
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <ResultField label="Media ponderada" value={mean?.WEIGHTED_MEAN} />
+        <ResultField label="Anomalias detectadas" value={anomaly?.ANOMALIES} />
+        <ResultField label="Riesgo del sistema" value={anomaly?.SYSTEM_RISK} />
+        <ResultField label="Prediccion simple (proximo valor)" value={prediction?.NEXT_VALUE} />
+        <ResultField label="Tendencia general" value={trend?.TREND} />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <ResultField label="RMSE" value={rmse?.RMSE} />
         <ResultField label="Regresion lineal (pendiente x100)" value={regresion?.SLOPE_X100} />
