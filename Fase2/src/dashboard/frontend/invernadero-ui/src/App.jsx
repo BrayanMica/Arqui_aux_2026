@@ -22,6 +22,7 @@ import {
 // Importación del servicio de endpoints
 import {
   conectarMqttInvernadero,
+  desconectarMqttInvernadero,
   fetchHistoricalData,
   fetchLogsData,
   updateActuatorState,
@@ -96,6 +97,7 @@ function App() {
   const [armHistory, setArmHistory] = useState([]);
 
   const [controlMode, setControlMode] = useState("AUTOMATICO");
+  const [alarmaSilenciada, setAlarmaSilenciada] = useState(false);
   const [mqttConnected, setMqttConnected] = useState(false);
   const [lastCommand, setLastCommand] = useState(null);
   const [commandError, setCommandError] = useState('');
@@ -180,6 +182,7 @@ function App() {
     setLastCommand(null);
     setCommandError('');
     setLastUpdate(null);
+    setAlarmaSilenciada(false);
   };
 
   useEffect(() => {
@@ -288,7 +291,7 @@ function App() {
     // Cuando el usuario cierre o recargue la pestaña, cerramos la sesión de MQTT limpia
     return () => {
       if (mqttClient) {
-        mqttClient.end();
+        desconectarMqttInvernadero();
       }
     };
   }, [session]);
@@ -373,6 +376,27 @@ function App() {
     setLastCommand({
       label: COMMAND_LABELS[actuatorKey] || actuatorKey,
       action: targetNewState ? 'ON' : 'OFF',
+      timestamp: new Date().toLocaleTimeString()
+    });
+  };
+
+  // El IoT interpreta ALARMA_ON/ALARMA_OFF como un mute (campo "silenciado"),
+  // no como el estado del buzzer fisico. Por eso usa su propio estado local
+  // en vez de reusar toggleActuator/data.actuators.alarma.active.
+  const handleAlarma = () => {
+    const silenciar = !alarmaSilenciada;
+    const published = updateActuatorState('alarma', silenciar);
+
+    if (!published) {
+      setCommandError('No hay conexion MQTT para enviar el comando.');
+      return;
+    }
+
+    setAlarmaSilenciada(silenciar);
+    setCommandError('');
+    setLastCommand({
+      label: COMMAND_LABELS.alarma,
+      action: silenciar ? 'SILENCIADA' : 'REACTIVADA',
       timestamp: new Date().toLocaleTimeString()
     });
   };
@@ -586,7 +610,7 @@ function App() {
               label="Sistema de Riego 1"
               state={data.actuators.riego_1.active}
               onChange={() => toggleActuator('riego_1')}
-              subtitle={data.actuators.riego_1.mode === 'auto' ? 'Modo Automático' : 'Modo Manual'}
+              subtitle={controlMode === 'AUTOMATICO' ? 'Modo Automático' : 'Modo Manual'}
               disabled={controlMode === "AUTOMATICO"}
             />
 
@@ -595,22 +619,22 @@ function App() {
 
             <div className="pt-4 border-t border-slate-100">
               <button
-                onClick={() => toggleActuator('alarma')}
+                onClick={handleAlarma}
                 disabled={controlMode === "AUTOMATICO"}
                 className={`w-full py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors ${controlMode === "AUTOMATICO"
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  : data.actuators.alarma.active
-                    ? "bg-rose-100 text-rose-700 hover:bg-rose-200"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : alarmaSilenciada
+                    ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    : "bg-rose-100 text-rose-700 hover:bg-rose-200"
                   }`}
               >
                 <Bell className="w-5 h-5" />
 
                 {controlMode === "AUTOMATICO"
                   ? "Bloqueado (Modo Automático)"
-                  : data.actuators.alarma.active
-                    ? "SILENCIAR ALARMA"
-                    : "Alarma Inactiva"}
+                  : alarmaSilenciada
+                    ? "Alarma silenciada (reactivar)"
+                    : "SILENCIAR ALARMA"}
               </button>
             </div>
 

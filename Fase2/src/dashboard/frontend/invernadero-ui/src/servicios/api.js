@@ -76,6 +76,10 @@ export const conectarMqttInvernadero = (
   // Evita duplicar conexiones si ya existe una activa
   if (!mqttClientGlobal) {
     mqttClientGlobal = mqtt.connect(MQTT_BROKER_URL);
+  } else {
+    // Si el cliente ya existia (p. ej. remount en React StrictMode),
+    // limpiamos los listeners previos para no duplicarlos
+    mqttClientGlobal.removeAllListeners();
   }
 
   mqttClientGlobal.on('connect', () => {
@@ -148,8 +152,14 @@ export const conectarMqttInvernadero = (
 
     } else if (topic === mqttTopic('control', 'remoto')) {
 
-      estadoInvernadero.controlMode =
-        payload.toUpperCase().trim();
+      // El IoT reutiliza este mismo topico para comandos de actuadores
+      // (RIEGO_ON, ALARMA_OFF, etc). Solo MANUAL/AUTOMATICO representan
+      // un cambio real de modo; lo demas es eco de un comando y debe
+      // ignorarse para no corromper el modo mostrado en la UI.
+      const normalizedPayload = payload.toUpperCase().trim();
+      if (normalizedPayload === 'MANUAL' || normalizedPayload === 'AUTOMATICO') {
+        estadoInvernadero.controlMode = normalizedPayload;
+      }
 
     } else {
 
@@ -231,6 +241,20 @@ export const conectarMqttInvernadero = (
   });
 
   return mqttClientGlobal; // Retornar el mqttClientGlobale para poder apagarlo desde el useEffect
+};
+
+/*
+ * Cierra la conexion activa y limpia el singleton para que la proxima
+ * llamada a conectarMqttInvernadero() abra una conexion nueva en vez de
+ * reutilizar un cliente ya finalizado (evita que un remount de React
+ * StrictMode deje el MQTT desconectado para siempre).
+ */
+export const desconectarMqttInvernadero = () => {
+  if (mqttClientGlobal) {
+    mqttClientGlobal.removeAllListeners();
+    mqttClientGlobal.end(true);
+    mqttClientGlobal = null;
+  }
 };
 
 
