@@ -51,14 +51,12 @@ let estadoInvernadero = {
   temperature: null,
   humidity: null,
   soilMoistureArea: null,
-  soilMoistureArea2: null,
   lightLevel: null,
   gasLevel: null,
 
   // Actuadores
   actuators: {
     riego_1: false,
-    riego_2: false,
     ventilador: false,
     luces: false,
     alarma: false
@@ -172,10 +170,6 @@ export const conectarMqttInvernadero = (
           estadoInvernadero.soilMoistureArea = valor;
           break;
 
-        case mqttTopic('sensores', 'humedad_suelo_area2'):
-          estadoInvernadero.soilMoistureArea2 = valor;
-          break;
-
         case mqttTopic('sensores', 'luz'):
           estadoInvernadero.lightLevel = valor;
           break;
@@ -188,11 +182,6 @@ export const conectarMqttInvernadero = (
         case mqttTopic('actuadores', 'riego'):
         case mqttTopic('actuadores', 'riego_area1'):
           estadoInvernadero.actuators.riego_1 =
-            payload.toUpperCase() === 'ON';
-          break;
-
-        case mqttTopic('actuadores', 'riego_area2'):
-          estadoInvernadero.actuators.riego_2 =
             payload.toUpperCase() === 'ON';
           break;
 
@@ -449,12 +438,6 @@ export const publicarComandoMqtt =
           : "RIEGO_OFF";
         break;
 
-      case "riego_area2":
-        payload = estado
-          ? "RIEGO2_ON"
-          : "RIEGO2_OFF";
-        break;
-
       case "ventilador":
         payload = estado
           ? "VENTILADOR_ON"
@@ -490,7 +473,6 @@ export const publicarComandoMqtt =
 export const updateActuatorState = (actuatorId, newState) => {
   const apiActuatorNames = {
     riego_1: 'riego_area1',
-    riego_2: 'riego_area2',
     ventilador: 'ventilador',
     luces: 'luces',
     alarma: 'alarma'

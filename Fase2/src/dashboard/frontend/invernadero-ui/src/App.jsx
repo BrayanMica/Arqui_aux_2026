@@ -36,7 +36,6 @@ import { LoginScreen, TEST_USER } from './componentes/LoginScreen';
 const SESSION_KEY = 'invernadero_dashboard_session';
 const COMMAND_LABELS = {
   riego_1: 'Riego area 1',
-  riego_2: 'Riego area 2',
   ventilador: 'Ventilador',
   luces: 'Luces',
   alarma: 'Alarma'
@@ -203,13 +202,11 @@ function App() {
             temperature: null,
             humidity: null,
             soilMoistureArea: null,
-            soilMoistureArea2: null,
             lightLevel: null,
             gasLevel: null,
           },
           actuators: {
             riego_1: { active: false },
-            riego_2: { active: false },
             ventilador: { active: false },
             luces: { active: false },
             alarma: { active: false }
@@ -246,8 +243,6 @@ function App() {
                   humidity: nuevoEstado.humidity,
                   soilMoistureArea:
                     nuevoEstado.soilMoistureArea,
-                  soilMoistureArea2:
-                    nuevoEstado.soilMoistureArea2,
                   lightLevel:
                     nuevoEstado.lightLevel,
                   gasLevel:
@@ -258,11 +253,6 @@ function App() {
                   riego_1: {
                     active:
                       nuevoEstado.actuators.riego_1
-                  },
-
-                  riego_2: {
-                    active:
-                      nuevoEstado.actuators.riego_2 || false
                   },
 
                   ventilador: {
@@ -517,11 +507,10 @@ function App() {
           title="Lecturas recientes"
           description="Valores actuales recibidos por MQTT o por la carga inicial del sistema."
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <MetricCard title="Temperatura" value={formatSensorValue(data.current.temperature, 1)} unit="°C" icon={<Thermometer className="w-6 h-6 text-orange-500" />} color="border-orange-200 bg-orange-50" />
             <MetricCard title="Humedad Amb." value={formatSensorValue(data.current.humidity, 1)} unit="%" icon={<Wind className="w-6 h-6 text-blue-500" />} color="border-blue-200 bg-blue-50" />
             <MetricCard title="Suelo Área 1" value={formatSensorValue(data.current.soilMoistureArea, 1)} unit="%" icon={<Droplets className="w-6 h-6 text-sky-500" />} color="border-sky-200 bg-sky-50" />
-            <MetricCard title="Suelo Área 2" value={formatSensorValue(data.current.soilMoistureArea2, 1)} unit="%" icon={<Droplets className="w-6 h-6 text-cyan-500" />} color="border-cyan-200 bg-cyan-50" />
             <MetricCard title="Luz (LDR)" value={formatSensorValue(data.current.lightLevel, 0)} unit="lx" icon={<Sun className="w-6 h-6 text-amber-500" />} color="border-amber-200 bg-amber-50" />
           </div>
 
@@ -598,14 +587,6 @@ function App() {
               state={data.actuators.riego_1.active}
               onChange={() => toggleActuator('riego_1')}
               subtitle={data.actuators.riego_1.mode === 'auto' ? 'Modo Automático' : 'Modo Manual'}
-              disabled={controlMode === "AUTOMATICO"}
-            />
-
-            <ActuatorToggle
-              label="Sistema de Riego 2"
-              state={data.actuators.riego_2.active}
-              onChange={() => toggleActuator('riego_2')}
-              subtitle="Preparado para area de cultivo 2"
               disabled={controlMode === "AUTOMATICO"}
             />
 
