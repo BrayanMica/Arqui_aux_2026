@@ -246,6 +246,14 @@ export const conectarMqttInvernadero = (
   return mqttClientGlobal; // Retornar el mqttClientGlobale para poder apagarlo desde el useEffect
 };
 
+// Cierra la conexión y limpia la instancia global para permitir una reconexión limpia
+export const desconectarMqttInvernadero = () => {
+  if (mqttClientGlobal) {
+    mqttClientGlobal.end(true);
+    mqttClientGlobal = null;
+  }
+};
+
 
 // Obtiene los datos históricos y los transforma para la gráfica de Recharts
 export const fetchHistoricalData = async (

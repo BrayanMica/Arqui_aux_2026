@@ -22,6 +22,7 @@ import {
 // Importación del servicio de endpoints
 import {
   conectarMqttInvernadero,
+  desconectarMqttInvernadero,
   fetchHistoricalData,
   fetchLogsData,
   updateActuatorState,
@@ -295,10 +296,12 @@ function App() {
 
     inicializarSistema();
 
-    // Cuando el usuario cierre o recargue la pestaña, cerramos la sesión de MQTT limpia
+    // Cuando el usuario cierre/recargue la pestaña o cierre sesión, cerramos la conexión MQTT
+    // y limpiamos la instancia global para que el próximo montaje (incl. doble-montaje de
+    // StrictMode en desarrollo) cree un cliente nuevo en vez de reusar uno ya finalizado.
     return () => {
       if (mqttClient) {
-        mqttClient.end();
+        desconectarMqttInvernadero();
       }
     };
   }, [session]);
